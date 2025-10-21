@@ -1,0 +1,29 @@
+name: build
+
+on:
+  push:
+    branches: [ master ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: devkitpro/devkita64:20251117
+    steps:
+      - name: Checkout latest code
+        uses: actions/checkout@v4
+      - name: Build atmosphere
+        run: |
+          git config --global --add safe.directory "*"
+          make -f atmosphere.mk dist-no-debug
+      - name: Upload Release Asset
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: nightly
+          files: |
+            out/nintendo_nx_arm64_armv8a/release/atmosphere-*.zip
+            out/nintendo_nx_arm64_armv8a/release/fusee.bin
